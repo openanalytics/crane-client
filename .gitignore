@@ -1,3 +1,4 @@
 /.project
 /*.tar.gz
 /*.Rcheck
+/crane/man/*.Rd
