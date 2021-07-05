@@ -3,29 +3,55 @@
 #' @param pkgs packages to install
 #' @param repo crane repo url
 #' @export
-install <- function(pkgs, repo) {
+install <- function(pkgs, repo, compatibility_patch = R.Version()$major < 4) {
   
-  client_id <- get_client_id(repo)
-  
-  device_code <- get_device_code(repo, client_id)
-  
-  message(format_activation_instructions(device_code))
-  
-  token <- poll_access_token(
-      repo,
-      device_code$device_code,
-      device_code$interval)
-
-  utils::install.packages(pkgs,
-      repos = repo,
-      headers = c("Authorization" = sprintf("Bearer %s", token)))
+  if (check_access(repo, token = NULL)) {
+    messagef("Repo is public: %s", repo)
+    install.packages(pkgs, repos = repo)
+  } else {
+    
+    repo_properties <- discover_repo(repo)
+    
+    if (compatibility_patch) {
+      available.packages <- utils::available.packages
+      body(available.packages)[[7]][[4]][[3]][[4]][[4]][[3]][[4]][[3]][[2]][[2]][[8]] <- quote(...)
+      body(available.packages)[[7]][[4]][[3]][[4]][[4]][[3]][[7]][[3]][[6]][[3]][[2]][[2]][[8]] <- quote(...)
+      unlockBinding("available.packages", getNamespace("utils"))
+      assign("available.packages", available.packages, envir = getNamespace("utils"))
+      lockBinding("available.packages", getNamespace("utils"))
+    }
+    
+    device_code <- get_device_code(
+        repo_properties$device_code_url,
+        repo_properties$client_id)
+    
+    message(format_activation_instructions(device_code))
+    
+    token <- poll_access_token(
+        repo_properties$token_url,
+        repo_properties$client_id,
+        device_code)
+    
+    check_access(repo, token)
+    
+    utils::install.packages(pkgs,
+        repos = repo,
+        headers = c("Authorization" = format_auth_header(token)))
+    
+  }
   
 }
 
 format_activation_instructions <- function(device_code) {
   
-  sprintf("Please activate your R session:\n*navigate to %s\n* and enter your user code: %s",
-      device_code$verification_url,
+  sprintf(
+      nd(
+        "------------------------------",
+        "Please activate your R session:",
+        "\tpoint your browser to %s",
+        "\tand enter your user code: %s",
+        "------------------------------"),
+      device_code$verification_uri,
       device_code$user_code)
   
 }

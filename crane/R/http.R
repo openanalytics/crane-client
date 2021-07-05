@@ -3,12 +3,27 @@
 format_error_response <- function(response) {
   
   if (response$status_code < 400) stop("Not an error response.")
-  if (response$type != "text/html")
-    errorf("Cannot format error response; unrecognized content type: %s",
-        response$type)
-  
-  xml_text(read_xml(rawToChar(response$content), as_html = TRUE))
-  
+  switch(response$type,
+      "text/html" = {
+        xml_text(read_xml(rawToChar(response$content), as_html = TRUE))
+      },
+      "application/json" = {
+        rawToChar(response$content)
+      },
+      {
+        if (response$status_code == 401L) {
+          errorf("401 Unauthorized: %s", parse_www_authenticate(response))
+        } else {
+          errorf("Cannot format error response; unrecognized content type: %s",
+              response$type)
+        }
+      })
+
+}
+
+parse_www_authenticate <- function(response) {
+  lines <- strsplit(rawToChar(response$headers), "\n", fixed = TRUE)[[1]]
+  lines[grepl("WWW-Authenticate", lines, fixed = TRUE)]
 }
 
 #' @importFrom curl handle_data curl_fetch_memory

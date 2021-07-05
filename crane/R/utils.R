@@ -7,8 +7,10 @@ errorf <- function(fmt, ...) stop(sprintf(fmt, ...), call. = FALSE)
 
 warningf <- function(fmt, ...) warning(sprintf(fmt, ...), call. = FALSE)
 
-messagef <- function(fmt, ...) message(sprintf(fmt, ...), call. = FALSE)
+messagef <- function(fmt, ...) message(sprintf(fmt, ...))
 
 sleep <- function(seconds) Sys.sleep(time = seconds)
 
 from_json <- function(txt) jsonlite::fromJSON(txt)
+
+nd <- function(...) paste(c(...), collapse = "\n")

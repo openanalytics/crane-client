@@ -1,7 +1,7 @@
 
-get_device_code <- function(repo, client_id) {
+get_device_code <- function(url, client_id) {
   
-  request <- device_code_request(repo, client_id)
+  request <- device_code_request(url, client_id)
   
   response <- perform(request)
   
@@ -13,32 +13,46 @@ get_device_code <- function(repo, client_id) {
   
 }
 
-poll_access_token <- function(repo, device_code, interval, expires_in) {
+poll_access_token <- function(
+    url,
+    client_id,
+    device_code,
+    interval = device_code$interval,
+    expires_in = device_code$expires_in,
+    verbose = getOption("crane.poll.verbose", FALSE)) {
+  
+  last_response <- "(no response)"
   
   for (i in seq_len(floor(expires_in / interval))) {
     
     tryCatch({
           
-          return(get_access_token())
+          return(get_access_token(url, client_id, device_code))
           
         }, error = function(e) {
           
-          messagef("polling for access token: %s", e$message)
+          last_response <- e$message
+          
+          if (verbose) messagef("polling for access token: %s", e$message)
           
         })
     
-    message("retrying in [%s]", interval)
+    if (verbose) messagef("retrying in [%s]", interval)
     sleep(interval)
     
   }
   
-  errorf("Polling for access token failed: code expired.")
+  errorf("Polling for access token failed: code expired. Last response: %s",
+      last_response)
   
 }
 
-get_access_token <- function(repo, device_code) {
+get_access_token <- function(
+    url,
+    client_id,
+    device_code) {
   
-  request <- access_token_request(repo, device_code)
+  request <- access_token_request(url, client_id, device_code)
   
   response <- perform(request)
   
@@ -46,14 +60,14 @@ get_access_token <- function(repo, device_code) {
     errorf("Could not obtain access token. Server responded with:\n%s",
         format_error_response(response))
   
-  rawToChar(response$content)
+  from_json(rawToChar(response$content))
   
 }
 
-device_code_request <- function(repo, client_id) {
+device_code_request <- function(url, client_id) {
   
   post_form_request(
-      url = sprintf("%s/oauth2/device_code", repo),
+      url = url,
       data = c(
           client_id = client_id,
           scope = "message.read openid"
@@ -62,13 +76,16 @@ device_code_request <- function(repo, client_id) {
   
 }
 
-access_token_request <- function(repo, client_id, device_code) {
+access_token_request <- function(
+    url,
+    client_id,
+    device_code) {
   
   post_form_request(
-      url = sprintf("%s/oauth2/token", repo),
+      url = url,
       data = c(
           client_id = client_id,
-          device_code = device_code,
+          device_code = device_code$device_code,
           grant_type = "urn:ietf:params:oauth:grant-type:device_code"
       )
   )
