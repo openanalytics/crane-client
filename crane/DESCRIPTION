@@ -1,15 +1,17 @@
-Package: crane 
+Package: crane
 Type: Package
 Title: CRANlike Repo Authentication NEgotiator
-Version: 0.0.1
-Date: 2020-07-08
-Author: Daan Seynaeve, Maxim Nazarov, Marvin Steijaert
+Version: 0.0.1-9000
+Date: 2021-07-02
+Author: Daan Seynaeve
 Maintainer: Open Analytics <info@openanalytics.eu>
 Description: Lifting R package installation to higher standards
 License: MIT + file LICENSE
 Imports:
-    httr
+    curl,
+    xml2,
+    jsonlite
 Suggests: 
     testthat,
     mockr
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
