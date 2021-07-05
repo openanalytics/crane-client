@@ -10,7 +10,7 @@ install <- function(pkgs, repo, compatibility_patch = R.Version()$major < 4) {
     install.packages(pkgs, repos = repo)
   } else {
     
-    repo_properties <- discover_repo(repo)
+    repo_config <- discover_repo(repo)
     
     if (compatibility_patch) {
       available.packages <- utils::available.packages
@@ -22,14 +22,14 @@ install <- function(pkgs, repo, compatibility_patch = R.Version()$major < 4) {
     }
     
     device_code <- get_device_code(
-        repo_properties$device_code_url,
-        repo_properties$client_id)
+        repo_config$device_code_url,
+        repo_config$client_id)
     
     message(format_activation_instructions(device_code))
     
     token <- poll_access_token(
-        repo_properties$token_url,
-        repo_properties$client_id,
+        repo_config$token_url,
+        repo_config$client_id,
         device_code)
     
     check_access(repo, token)
