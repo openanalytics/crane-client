@@ -2,3 +2,4 @@
 /*.tar.gz
 /*.Rcheck
 /crane/man/*.Rd
+/integration-test/repo/*
