@@ -37,7 +37,7 @@ read_config <- function(config_file) {
   
   if (!file_exists(config_file)) list()
   else {
-    lst <- read_json(config_file)
+    lst <- read_json(config_file, simplifyVector = TRUE)
     
     if (!is.null(lst)) lst else list()
   }

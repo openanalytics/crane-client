@@ -11,7 +11,7 @@ install <- function(
   
   if (check_access(repo, token = NULL)) {
     messagef("Repo is public: %s", repo)
-    install.packages(pkgs, repos = repo)
+    utils::install.packages(pkgs, repos = repo)
   } else {
     
     repo_config <- discover_repo(repo, read_config(config_file))

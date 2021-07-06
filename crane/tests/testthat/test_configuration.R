@@ -12,8 +12,11 @@ test_that("register", {
           device_code_url = "http://testurl/oauth/device/code",
           config_file = tmp_file)
       
-      config <- read_json(tmp_file)
+      config <- read_config(tmp_file)
       expect_length(config, 1)
+      expect_equal(config[[1]]$client_id, "testclient")
+      expect_equal(config[[1]]$token_url, "http://testurl/oauth/token")
+      expect_equal(config[[1]]$device_code_url, "http://testurl/oauth/device/code")
       
       register("http://testrepo",
           client_id = "testclient",
@@ -21,7 +24,7 @@ test_that("register", {
           device_code_url = "http://testurl/oauth/device/code",
           config_file = tmp_file)
       
-      config <- read_json(tmp_file)
+      config <- read_config(tmp_file)
       expect_length(config, 1L)
       
       register("http://testrepo2",
@@ -30,7 +33,7 @@ test_that("register", {
           device_code_url = "http://testurl/oauth/device/code",
           config_file = tmp_file)
       
-      config <- read_json(tmp_file)
+      config <- read_config(tmp_file)
       expect_length(config, 2L)
       
     })
