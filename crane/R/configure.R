@@ -33,7 +33,8 @@ register <- function(repo,
 }
 
 #' @importFrom jsonlite read_json
-read_config <- function(config_file) {
+read_config <- function(
+    config_file = getOption("crane.repo.config", Sys.getenv("CRANE_REPO_CONFIG", "~/crane.json"))) {
   
   if (!file_exists(config_file)) list()
   else {

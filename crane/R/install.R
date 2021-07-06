@@ -25,18 +25,9 @@ install <- function(
       lockBinding("available.packages", getNamespace("utils"))
     }
     
-    device_code <- get_device_code(
-        repo_config$device_code_url,
-        repo_config$client_id)
+    token <- device_authorization_flow(repo_config)
     
-    message(format_activation_instructions(device_code))
-    
-    token <- poll_access_token(
-        repo_config$token_url,
-        repo_config$client_id,
-        device_code)
-    
-    check_access(repo, token)
+    check_access(repo, token, force = TRUE)
     
     utils::install.packages(pkgs,
         repos = repo,
@@ -45,6 +36,20 @@ install <- function(
   }
   
 }
+
+device_authorization_flow <- function(repo_config) {
+  device_code <- get_device_code(
+      repo_config$device_code_url,
+      repo_config$client_id)
+  
+  message(format_activation_instructions(device_code))
+  
+  poll_access_token(
+      repo_config$token_url,
+      repo_config$client_id,
+      device_code
+  )
+} 
 
 format_activation_instructions <- function(device_code) {
   

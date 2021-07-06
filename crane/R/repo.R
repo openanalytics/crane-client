@@ -45,3 +45,11 @@ authenticate <- function(request, token) {
 format_auth_header <- function(token) {
   sprintf("Bearer %s", token$access_token)
 }
+
+match_repos <- function(url, config) {
+  
+  if (length(url) != 1L) stop("expected length 1 `url`")
+  
+  names(config)[startsWith(url, names(config))]
+  
+}
