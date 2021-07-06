@@ -1,4 +1,6 @@
 
+test_config <- tempfile(fileext = ".json")
+options(crane.repo.config = test_config)
 crane::register(
     "http://localhost:7070/repo/test",
     client_id = "R",

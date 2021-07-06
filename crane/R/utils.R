@@ -14,3 +14,5 @@ sleep <- function(seconds) Sys.sleep(time = seconds)
 from_json <- function(txt) jsonlite::fromJSON(txt)
 
 nd <- function(...) paste(c(...), collapse = "\n")
+
+file_exists <- file.exists

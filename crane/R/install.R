@@ -3,14 +3,18 @@
 #' @param pkgs packages to install
 #' @param repo crane repo url
 #' @export
-install <- function(pkgs, repo, compatibility_patch = R.Version()$major < 4) {
+install <- function(
+    pkgs,
+    repo,
+    compatibility_patch = R.Version()$major < 4,
+    config_file = getOption("crane.repo.config", Sys.getenv("CRANE_REPO_CONFIG", "~/crane.json"))) {
   
   if (check_access(repo, token = NULL)) {
     messagef("Repo is public: %s", repo)
     install.packages(pkgs, repos = repo)
   } else {
     
-    repo_config <- discover_repo(repo)
+    repo_config <- discover_repo(repo, read_config(config_file))
     
     if (compatibility_patch) {
       available.packages <- utils::available.packages

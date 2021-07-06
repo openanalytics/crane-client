@@ -1,11 +1,10 @@
 
-discover_repo <- function(repo) {
-  
+discover_repo <- function(repo, config) {
   list(
       repo = repo,
-      device_code_url = registered_repo(repo)$device_code_url,
-      token_url = registered_repo(repo)$token_url,
-      client_id = registered_repo(repo)$client_id
+      device_code_url = config[[repo]]$device_code_url,
+      token_url = config[[repo]]$token_url,
+      client_id = config[[repo]]$client_id
   )
 }
 
