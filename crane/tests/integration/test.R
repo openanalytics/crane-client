@@ -10,3 +10,8 @@ crane::register(
 
 crane::install("foo", "http://localhost:7070/repo/test",
     compatibility_patch = TRUE)
+
+crane::enable_install_packages_hook()
+install.packages("foo", repos = "http://localhost:7070/repo/test")
+crane::disable_install_packages_hook()
+

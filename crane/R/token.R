@@ -60,7 +60,19 @@ get_access_token <- function(
     errorf("Could not obtain access token. Server responded with:\n%s",
         format_error_response(response))
   
-  from_json(rawToChar(response$content))
+  token <- from_json(rawToChar(response$content))
+  
+  token$obtained <- unix_time_now()
+  
+  token
+  
+}
+
+is_expired <- function(
+    token,
+    tol = floor(token$expires_in / 10)) {
+  
+  (unix_time_now() - token$obtained) > (token$expires_in - tol)
   
 }
 

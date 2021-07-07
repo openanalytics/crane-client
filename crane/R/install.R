@@ -25,7 +25,11 @@ install <- function(
       lockBinding("available.packages", getNamespace("utils"))
     }
     
-    token <- device_authorization_flow(repo_config)
+    token <- cache_lookup_token(repo)
+    if (is.null(token) || is_expired(token)) {
+      token <- device_authorization_flow(repo_config)
+      cache_token(repo, token)
+    }
     
     check_access(repo, token, force = TRUE)
     

@@ -16,3 +16,5 @@ from_json <- function(txt) jsonlite::fromJSON(txt)
 nd <- function(...) paste(c(...), collapse = "\n")
 
 file_exists <- file.exists
+
+unix_time_now <- function() as.integer(strftime(Sys.time(), format = "%s"))

@@ -37,7 +37,12 @@ download_file_wrapper <- function(url, ..., headers = NULL) {
     
     config_file <- getOption("crane.repo.config", Sys.getenv("CRANE_REPO_CONFIG", "~/crane.json"))
     
-    token <- device_authorization_flow(repo_config)
+    token <- cache_lookup_token(repo)
+    if (is.null(token) || is_expired(token)) {
+      token <- device_authorization_flow(repo_config)
+      cache_token(repo, token)
+    }
+    
     headers <- c(
         headers,
         "Authorization" = format_auth_header(token)
