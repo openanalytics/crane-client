@@ -7,6 +7,9 @@ format_error_response <- function(response) {
       "text/html" = {
         xml_text(read_xml(rawToChar(response$content), as_html = TRUE))
       },
+      "text/html;charset=utf-8" = {
+        xml_text(read_xml(rawToChar(response$content), as_html = TRUE))
+      },
       "application/json" = {
         rawToChar(response$content)
       },
