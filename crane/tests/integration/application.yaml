@@ -2,7 +2,8 @@ server:
   port: 7070
 app:
   storage-location: /opt/rdepot/repo/
-  jwks-uri: http://oa-crane-keycloak:8080/auth/realms/master/protocol/openid-connect/certs
+  openid-issuer-uri: http://oa-crane-keycloak:8080/auth/realms/master
+  # jwks-uri: http://oa-crane-keycloak:8080/auth/realms/master/protocol/openid-connect/certs
 
 spring:
   security:
