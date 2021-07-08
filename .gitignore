@@ -3,3 +3,5 @@
 *.gz
 /*.Rcheck
 /crane/man/*.Rd
+*.swp
+*.swo

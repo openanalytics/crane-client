@@ -35,6 +35,12 @@ poll_access_token <- function(
           
           if (verbose) messagef("polling for access token: %s", e$message)
           
+          #FIXME grepping the error message is not ideal
+          # error handling should be revised
+          if (!grepl("authorization_pending", e$message)) {
+            errorf("Polling for access token failed: Unexpected response.\n\t%s", e$message)
+          }
+          
         })
     
     if (verbose) messagef("retrying in [%s]", interval)

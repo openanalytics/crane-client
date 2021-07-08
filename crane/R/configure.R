@@ -1,9 +1,10 @@
 
 #' Register settings for repository
-#' @param repo repo
+#' @param repo repo url
 #' @param client_id oauth2 client id
 #' @param device_code_url endpoint to request the device code
 #' @param token_url endpoint to request access tokens
+#' @rdname register
 #' @export 
 register <- function(repo,
     client_id,
@@ -31,6 +32,18 @@ register <- function(repo,
   invisible()
   
 }
+#' @rdname register
+#' @export
+unregister <- function(repo,
+    config_file = getOption("crane.repo.config", Sys.getenv("CRANE_REPO_CONFIG", "~/crane.json"))) {
+  
+  config <- read_config()
+  config[[repo]] <- NULL
+  write_config(config, config_file)
+  
+  invisible()
+  
+}
 
 #' @importFrom jsonlite read_json
 read_config <- function(
@@ -48,6 +61,6 @@ read_config <- function(
 #' @importFrom jsonlite write_json
 write_config <- function(lst, config_file) {
   
-  write_json(lst, path = config_file)
+  write_json(lst, path = config_file, pretty = TRUE, auto_unbox = TRUE)
   
 }

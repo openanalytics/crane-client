@@ -21,7 +21,16 @@ check_access <- function(repo, token = NULL, force = FALSE) {
     errorf("Cannot access repository. Server responded with:\n%s",
         format_error_response(response))
   
-  response$status_code == 200L
+  e <- tryCatch({
+        index <- rawToChar(response$content)
+        tmpIndexFile <- tempfile()
+        writeLines(index, tmpIndexFile)
+        read.dcf(tmpIndexFile)
+        NULL
+      }, error = identity)
+  if (force && !is.null(e)) errorf("Cannot parse packages index: %s", e$message)
+  
+  response$status_code == 200L && is.null(e)
   
 }
 
