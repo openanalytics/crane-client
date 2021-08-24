@@ -8,6 +8,7 @@ enable_install_packages_hook <- function() {
    trace(utils::install.packages, expr, print = FALSE)
    trace(utils::available.packages, expr, print = FALSE)
    trace(utils::download.packages, expr, print = FALSE)
+   trace(utils::update.packages, expr, print = FALSE)
    invisible()
 }
 #' @name integration
@@ -16,6 +17,7 @@ disable_install_packages_hook <- function() {
   untrace(utils::install.packages)
   untrace(utils::available.packages)
   untrace(utils::download.packages)
+  untrace(utils::update.packages)
   invisible()
 }
 #' @name integration
