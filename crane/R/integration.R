@@ -4,12 +4,13 @@
 #' @name integration
 #' @export
 enable_install_packages_hook <- function() {
-   expr <- quote(download.file <- crane::download_file_wrapper)
-   trace(utils::install.packages, expr, print = FALSE)
-   trace(utils::available.packages, expr, print = FALSE)
-   trace(utils::download.packages, expr, print = FALSE)
-   trace(utils::update.packages, expr, print = FALSE)
-   invisible()
+  tracingState(TRUE)  # to make sure trace has an effect
+  expr <- quote(download.file <- crane::download_file_wrapper)
+  trace(utils::install.packages, expr, print = FALSE)
+  trace(utils::available.packages, expr, print = FALSE)
+  trace(utils::download.packages, expr, print = FALSE)
+  trace(utils::update.packages, expr, print = FALSE)
+  invisible()
 }
 #' @name integration
 #' @export
