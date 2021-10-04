@@ -119,8 +119,8 @@ pipeline {
                         }
                     }
                     environment {
-                        RDEPOT_TOKEN = credentials('jenkins-rdepot-dev-token')
-                        RDEPOT_HOST = 'https://rdepot-dev.openanalytics.eu'
+                        RDEPOT_TOKEN = credentials('jenkins-rdepot-token')
+                        RDEPOT_HOST = 'https://rdepot.openanalytics.eu'
                     }
                     steps {
                         container('rdepot-cli') {
