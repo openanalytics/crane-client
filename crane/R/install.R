@@ -60,12 +60,16 @@ login <- function(
     token
 }
 
-device_authorization_flow <- function(repo_config) {
+device_authorization_flow <- function(repo_config, interactive = base::interactive()) {
   device_code <- get_device_code(
       repo_config$device_code_url,
       repo_config$client_id)
-  
+ 
   message(format_activation_instructions(device_code))
+  if (interactive) {
+    readline(prompt="Press [Enter] to open the verification URL in your browser.")
+    browse_url(device_code$verification_uri)
+  }
   
   poll_access_token(
       repo_config$token_url,
@@ -78,11 +82,11 @@ format_activation_instructions <- function(device_code) {
   
   sprintf(
       nd(
-        "------------------------------",
+        "--------------------------------------------------",
         "Please activate your R session:",
         "\tpoint your browser to %s",
         "\tand enter your user code: %s",
-        "------------------------------"),
+        "--------------------------------------------------"),
       device_code$verification_uri,
       device_code$user_code)
   
