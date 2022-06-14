@@ -9,7 +9,7 @@ install <- function(
     pkgs,
     repo,
     compatibility_patch = R.Version()$major < 4,
-    config_file = getOption("crane.repo.config", Sys.getenv("CRANE_REPO_CONFIG", "~/crane.json"))) {
+    config_file) {
   
   if (check_access(repo, token = NULL)) {
     messagef("Repo is public: %s", repo)
@@ -47,11 +47,12 @@ install <- function(
 #' @export
 login <- function(
     repo,
-    config_file = getOption("crane.repo.config", Sys.getenv("CRANE_REPO_CONFIG", "~/crane.json"))) {
+    config_file = get_crane_opt("config", "file",
+      default = default_config_file()
+    )) {
     
     repo_config <- discover_repo(repo, read_config(config_file))
-    
-    
+     
     token <- cache_lookup_token(repo)
     if (is.null(token) || is_expired(token)) {
       token <- device_authorization_flow(repo_config)
@@ -60,7 +61,16 @@ login <- function(
     token
 }
 
-device_authorization_flow <- function(repo_config, interactive = base::interactive()) {
+#' @name options
+#' @section Options:
+#' * `crane.interactive`: open the verification url in the browser of the user automatically using [utils::browseURL] during the device authorization flow. By default this will only happen if running in interactive mode ([base::interactive()])
+{}
+
+device_authorization_flow <- function(
+  repo_config,
+  interactive = get_crane_opt("interactive", default = base::interactive())
+  ) {
+
   device_code <- get_device_code(
       repo_config$device_code_url,
       repo_config$client_id)

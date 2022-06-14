@@ -22,6 +22,9 @@ disable_install_packages_hook <- function() {
   invisible()
 }
 #' @name integration
+#' @param url `url` argument to [utils::download.file]
+#' @param ... further arguments to [utils::download.file]
+#' @param headers `headers` argument to [utils::download.file]. The negotiated token will be added as a bearer token in an `Authorzation` header. If an `Authoryzation` header is already present, it will be replaced.
 #' @export
 download_file_wrapper <- function(url, ..., headers = NULL) {
   
@@ -38,8 +41,6 @@ download_file_wrapper <- function(url, ..., headers = NULL) {
     
     repo_config <- discover_repo(repo, config)
     
-    config_file <- getOption("crane.repo.config", Sys.getenv("CRANE_REPO_CONFIG", "~/crane.json"))
-    
     token <- cache_lookup_token(repo)
     if (is.null(token) || is_expired(token)) {
       token <- device_authorization_flow(repo_config)
@@ -47,7 +48,7 @@ download_file_wrapper <- function(url, ..., headers = NULL) {
     }
     
     headers <- c(
-        headers,
+        headers[names(headers) != "Authorization"],
         "Authorization" = format_auth_header(token)
     )
   }

@@ -13,6 +13,6 @@ Imports:
     jsonlite,
     utils
 Suggests: 
-    testthat,
-    mockr
-RoxygenNote: 7.1.2
+    testthat
+RoxygenNote: 7.2.0
+Roxygen: list(markdown = TRUE)

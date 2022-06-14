@@ -1,4 +1,9 @@
 
+#' @name options
+#' @section Options:
+#' * `crane.poll.verbose`: poll verbosely for access token
+{}
+
 get_device_code <- function(url, client_id) {
   
   request <- device_code_request(url, client_id)
@@ -19,7 +24,7 @@ poll_access_token <- function(
     device_code,
     interval = device_code$interval,
     expires_in = device_code$expires_in,
-    verbose = getOption("crane.poll.verbose", FALSE)) {
+    verbose = get_crane_opt("poll", "verbose", default = FALSE)) {
   
   last_response <- "(no response)"
   
