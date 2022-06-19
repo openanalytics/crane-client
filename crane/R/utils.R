@@ -26,3 +26,5 @@ unix_time_now <- function() as.integer(strftime(Sys.time(), format = "%s"))
 browse_url <- function(url, ...) utils::browseURL(url, ...) 
 
 file_path <- function(...) file.path(...)
+
+file_remove <- function(...) file.remove(...)

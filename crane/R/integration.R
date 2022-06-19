@@ -1,11 +1,17 @@
 
+#' @name options
+#' @section Options:
+#' * `crane.shim.verbose`: be verbose about extra actions in the [utils::download.file] shim (that is activated with [enable_install_packages_hook])
+#' * `crane.debug.alwaysrefresh`: always refresh cached tokens even if they are not expired.
+{}
+
 #' Integration with install tooling in utils
 #' @description insert a hook in \code{\link{install.packages}}
 #' @name integration
 #' @export
 enable_install_packages_hook <- function() {
   tracingState(TRUE)  # to make sure trace has an effect
-  expr <- quote(download.file <- crane::download_file_wrapper)
+  expr <- quote(download.file <- crane::download_file_shim)
   trace(utils::install.packages, expr, print = FALSE)
   trace(utils::available.packages, expr, print = FALSE)
   trace(utils::download.packages, expr, print = FALSE)
@@ -26,11 +32,12 @@ disable_install_packages_hook <- function() {
 #' @param ... further arguments to [utils::download.file]
 #' @param headers `headers` argument to [utils::download.file]. The negotiated token will be added as a bearer token in an `Authorzation` header. If an `Authoryzation` header is already present, it will be replaced.
 #' @export
-download_file_wrapper <- function(url, ..., headers = NULL) {
+download_file_shim <- function(url, ..., headers = NULL) {
   
   config <- read_config()
   repos <- match_repos(url, config)
-  
+  verbose <- get_crane_opt("shim", "verbose", default = TRUE)
+
   if (length(repos) > 0) {
     if (length(repos) > 1L) {
       warningf("More than one matching Crane repository found for url. Using the first match: %s", repos)
@@ -42,10 +49,18 @@ download_file_wrapper <- function(url, ..., headers = NULL) {
     repo_config <- discover_repo(repo, config)
     
     token <- cache_lookup_token(repo)
-    if (is.null(token) || is_expired(token)) {
+    if (is.null(token) || is_refresh_expired(token)) {
       token <- device_authorization_flow(repo_config)
       cache_token(repo, token)
     }
+    if (is_expired(token) || 
+      get_crane_opt("debug", "alwaysrefresh", default = FALSE)) {
+
+      if (verbose) messagef("Refreshing access token for Crane repostiry: %s", repo)
+
+      token <- refresh_token_flow(repo_config, token)
+      cache_token(repo, token)
+    } 
     
     headers <- c(
         headers[names(headers) != "Authorization"],
@@ -56,3 +71,4 @@ download_file_wrapper <- function(url, ..., headers = NULL) {
   utils::download.file(url = url, headers = headers, ...)
   
 }
+

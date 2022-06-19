@@ -24,24 +24,36 @@ default_cache_dir <- function() {
 cache_token <- function(
     repo,
     token,
-    persistent = get_crane_opt("cache", "persistent", default = FALSE)
+    persistent = get_crane_opt("cache", "persistent", default = FALSE),
+    cache_dir = get_crane_opt("cache", "dir", default = default_cache_dir())
     ) {
 
   assign(repo, token, envir = cache)
-  if (persistent) persist_cache()
+  if (persistent) persist_cache(cache_dir)
 
 }
 
 cache_lookup_token <- function(
     repo,
-    persistent = get_crane_opt("cache", "persistent", default = FALSE)
+    persistent = get_crane_opt("cache", "persistent", default = FALSE),
+    cache_dir = get_crane_opt("cache", "dir", default = default_cache_dir())
     ) {
 
-  if (persistent) restore_cache()
+  if (persistent) restore_cache(cache_dir)
   if (exists(repo, envir = cache))
     get(repo, envir = cache)
   else NULL
 
+}
+
+#' Clear the token cache
+#' @export
+cache_clear <- function(
+    persistent = get_crane_opt("cache", "persistent", default = FALSE),
+    cache_dir = get_crane_opt("cache", "dir", default = default_cache_dir())) {
+
+  if (persistent) file_remove(file_path(cache_dir, "cache.json"))
+  rm(list = ls(cache), envir = cache)
 }
 
 persist_cache <- function(
@@ -59,10 +71,13 @@ restore_cache  <- function(
   cache_dir = get_crane_opt("cache", "dir", default = default_cache_dir())
   ) {
 
-  tokens <- read_json(file_path(cache_dir, "cache.json"), simplifyVector = TRUE)
-  for (repo in names(tokens)) {
-    if (!exists(repo, envir = cache))
+  cache_file <- file_path(cache_dir, "cache.json")
+  if (file_exists(cache_file)) {
+    tokens <- read_json(file_path(cache_dir, "cache.json"), simplifyVector = TRUE)
+    for (repo in names(tokens)) {
       assign(repo, tokens[[repo]], envir = cache)
+    }
   }
+  
 }
 

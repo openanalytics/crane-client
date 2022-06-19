@@ -61,6 +61,18 @@ login <- function(
     token
 }
 
+refresh_token_flow <- function(
+  repo_config,
+  token) {
+
+  merge_token(token, refresh_access_token(
+    repo_config$token_url,
+    repo_config$client_id,
+    token$refresh_token
+  ))
+
+}
+
 #' @name options
 #' @section Options:
 #' * `crane.interactive`: open the verification url in the browser of the user automatically using [utils::browseURL] during the device authorization flow. By default this will only happen if running in interactive mode ([base::interactive()])

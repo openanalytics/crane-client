@@ -74,9 +74,45 @@ get_access_token <- function(
   token <- from_json(rawToChar(response$content))
   
   token$obtained <- unix_time_now()
+  token$refresh_obtained <- unix_time_now()
   
   token
   
+}
+
+refresh_access_token <- function(
+  url,
+  client_id = client_id,
+  refresh_token,
+  scope = character()) {
+
+  request <- refresh_access_token_request(
+    url,
+    client_id = client_id,
+    refresh_token,
+    scope)
+
+  response <- perform(request)
+
+  if (response$status_code != 200L)
+    errorf("Could not refresh access token. Server responded with: \n%s", format_error_response(response))
+
+  token <- from_json(rawToChar(response$content))
+
+  token$obtained <- unix_time_now()
+
+  token
+
+}
+
+merge_token <- function(old_token, new_token) {
+
+  for (name in names(new_token)) {
+    old_token[[name]] <- new_token[[name]]
+  }
+
+  old_token
+
 }
 
 is_expired <- function(
@@ -85,6 +121,13 @@ is_expired <- function(
   
   (unix_time_now() - token$obtained) > (token$expires_in - tol)
   
+}
+
+is_refresh_expired <- function(
+  token,
+  tol = floor(token$expires_in / 10)) {
+
+  (unix_time_now() - token$refresh_obtained) > (token$refresh_expires_in - tol)
 }
 
 device_code_request <- function(url, client_id) {
@@ -114,3 +157,21 @@ access_token_request <- function(
   )
   
 }
+
+refresh_access_token_request <- function(
+    url,
+    client_id,
+    refresh_token,
+    scope = character()) {
+
+  post_form_request(
+    url = url,
+    data = c(
+      grant_type = "refresh_token",
+      client_id = client_id,
+      refresh_token = refresh_token,
+      scope = scope
+    )
+  )
+}
+
