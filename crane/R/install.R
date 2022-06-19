@@ -90,7 +90,7 @@ device_authorization_flow <- function(
   message(format_activation_instructions(device_code))
   if (interactive) {
     readline(prompt="Press [Enter] to open the verification URL in your browser.")
-    browse_url(device_code$verification_uri)
+    browse_url(device_code$verification_uri_complete)
   }
   
   poll_access_token(
@@ -107,9 +107,9 @@ format_activation_instructions <- function(device_code) {
         "--------------------------------------------------",
         "Please activate your R session:",
         "\tpoint your browser to %s",
-        "\tand enter your user code: %s",
+        "\tuser code: %s",
         "--------------------------------------------------"),
-      device_code$verification_uri,
+      device_code$verification_uri_complete,
       device_code$user_code)
   
 }
