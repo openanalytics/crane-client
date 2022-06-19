@@ -1,7 +1,7 @@
 
 #' @name options
 #' @section Options:
-#' * `crane.config.file`: filepath to the config file for crane. See [default_config_file()] for the default.
+#' * `crane.config.file`: filepath to the config file for crane. See [default_config_file] for the default.
 #' * `crane.config.autocreate`: automatically create the config file and its parent directories if it does not exist. 
 {}
 

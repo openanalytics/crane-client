@@ -2,6 +2,10 @@
 #' @name options
 #' @section Options:
 #' * `crane.poll.verbose`: poll verbosely for access token
+#' * `crane.device.offline`: request an offline refresh token. If enabled, this
+#'   adds the `offline_access` OIDC scope.
+#' * `crane.device.scope`: extra scopes to add to the device authorization code
+#'   request
 {}
 
 get_device_code <- function(url, client_id) {
@@ -125,18 +129,30 @@ is_expired <- function(
 
 is_refresh_expired <- function(
   token,
-  tol = floor(token$expires_in / 10)) {
+  tol = floor(token$refresh_expires_in / 10)) {
 
-  (unix_time_now() - token$refresh_obtained) > (token$refresh_expires_in - tol)
+  if (token$refresh_expires_in == 0L) FALSE
+  else {
+    (unix_time_now() - token$refresh_obtained) > (token$refresh_expires_in - tol)
+  }
 }
 
-device_code_request <- function(url, client_id) {
-  
+device_code_request <- function(
+    url,
+    client_id,
+    offline_access = get_crane_opt("device", "offline", default = FALSE),
+    scope = get_crane_opt("device", "scope", default = character())) {
+
   post_form_request(
       url = url,
       data = c(
           client_id = client_id,
-          scope = "message.read openid"
+          scope = format_scope(c(
+              "message.read",
+              "openid",
+              if (offline_access) "offline_access",
+              scope
+          ))
       )
   )
   
@@ -170,8 +186,13 @@ refresh_access_token_request <- function(
       grant_type = "refresh_token",
       client_id = client_id,
       refresh_token = refresh_token,
-      scope = scope
+      scope = format_scope(scope)
     )
   )
+}
+
+format_scope <- function(scope) {
+  if (!is.character(scope)) errorf("`scope` must be character()")
+  paste(scope, collapse = " ")
 }
 
