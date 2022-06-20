@@ -5,15 +5,13 @@
 
 Authentication is accomplished via the [Device Authorization Grant](https://oauth.net/2/device-flow/) in OAuth 2.0.
 Crane has been designed to work well with the [crane repository server](https://github.com/openanalytics/crane) and [RDepot](https://rdepot.io)
-but should work with any repository server acting as an OAuth2 resource server and OAuth2 authorization server that supports the device authorization grant. 
-
-To keep dependencies minimal, the package uses `curl` to make requests
-(instead of higher-level packages like `httr` or `crul`).
+but should work with any repository server acting as an OAuth2 resource server and OAuth2 authorization server that supports OIDC and the device authorization grant. 
 
 ## Install
 
 From GitHub:
-```
+
+```R
 install.packages('remotes')
 remotes::install_github("openanalytics/crane-client", subdir = "crane")
 ```
@@ -64,9 +62,4 @@ This means you can safely mix installs to private and public repositories:
 ```R
 install.packages(c("privatePkg", "publicDependencyOfPrivatePkg"), repos = c("https://cloud.r-project.org", "https://my-repo-url"))
 ```
-
-## Roadmap
-
-* CRAN release
-* integration with [`pak`](https://github.com/r-lib/pak)
 
