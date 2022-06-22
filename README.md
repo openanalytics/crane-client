@@ -65,7 +65,7 @@ install.packages(c("privatePkg", "publicDependencyOfPrivatePkg"), repos = c("htt
 
 ## User Options
 
-You can configure a variety of settings through R options and environment variables. See `?crane::options` for an overview of availble options and more info.
+You can configure a variety of settings through R options and environment variables. See `?crane::options` for an overview of available options and more info.
 
 Learn more at https://crane.rdepot.io
 
