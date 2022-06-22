@@ -8,7 +8,8 @@
 #' @param ... `character(1)` option key where each key level is given as a separate arg. The top-level \code{crane} is implied and does not need to be provided.
 #' @param default default object to return if no value is set via an R base option or environment variable
 #' 
-#' @details the matching environment variable for an option can be found by dot separtors with underscores and uppercasing all letters. If an option is set both via [base::options] and as an environment variable, the value set via an option will take precedence.
+#' @details the matching environment variable for an option can be found by dot separtors with underscores and uppercasing all letters. For example, the R option `crane.config.file` matches the environment variable `CRANE_REPO_CONFIG`.
+#' If an option is set both via [base::options] and as an environment variable, the value set via an option will take precedence.
 #'
 #' @export
 get_crane_opt <- function(..., default = NULL) {

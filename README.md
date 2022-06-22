@@ -20,8 +20,8 @@ remotes::install_github("openanalytics/crane-client", subdir = "crane")
 
 Before installing packages from a oauth2-protected private repository you need to tell `crane` about it.
 
-Repository configuration is kept in a `crane.json` file.
-The default location will be in your home directory, but you can change it by setting the R option `crane.repo.config` or the environment variable `CRANE_REPO_CONFIG`.
+Repository configuration is kept in a configuration file.
+The default location for this file is based on the XDG specification (see `?default_config_file`). You can change this by setting the R option `crane.repo.config` or the environment variable `CRANE_REPO_CONFIG`.
 
 To register a repository, you need a *client id*, *device_code_url* and *token_url*.
 These should be supplied to you by your authorization service.
@@ -62,6 +62,10 @@ This means you can safely mix installs to private and public repositories:
 ```R
 install.packages(c("privatePkg", "publicDependencyOfPrivatePkg"), repos = c("https://cloud.r-project.org", "https://my-repo-url"))
 ```
+
+## User Options
+
+You can configure a variety of settings through R options and environment variables. See `?crane::options` for an overview of availble options and more info.
 
 Learn more at https://crane.rdepot.io
 
