@@ -1,5 +1,5 @@
 
-# crane
+# crane 
 
 `crane` helps you install packages from CRAN-like private R repositories in a secure way.
 
@@ -30,8 +30,8 @@ These should be supplied to you by your authorization service.
 crane::register(
     "https://my-repo-url",
     client_id = "R",
-    device_code_url = "http://localhost:8080/auth/realms/master/protocol/openid-connect/auth/device",
-    token_url = "http://localhost:8080/auth/realms/master/protocol/openid-connect/token",
+    device_code_url = "https://my-auth-server/protocol/openid-connect/auth/device",
+    token_url = "http://my-auth-server/protocol/openid-connect/token",
 )
 ```
 
@@ -62,4 +62,8 @@ This means you can safely mix installs to private and public repositories:
 ```R
 install.packages(c("privatePkg", "publicDependencyOfPrivatePkg"), repos = c("https://cloud.r-project.org", "https://my-repo-url"))
 ```
+
+Learn more at https://crane.rdepot.io
+
+**(c) Copyright Open Analytics NV, 2021-2022 - Apache License 2.0**
 
