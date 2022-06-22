@@ -46,21 +46,7 @@ download_file_shim <- function(url, ..., headers = NULL) {
     
     messagef("Authenticating request to Crane repository: %s", repo)
     
-    repo_config <- discover_repo(repo, config)
-    
-    token <- cache_lookup_token(repo)
-    if (is.null(token) || is_refresh_expired(token)) {
-      token <- device_authorization_flow(repo_config)
-      cache_token(repo, token)
-    }
-    if (is_expired(token) || 
-      get_crane_opt("debug", "alwaysrefresh", default = FALSE)) {
-
-      if (verbose) messagef("Refreshing access token for Crane repostiry: %s", repo)
-
-      token <- refresh_token_flow(repo_config, token)
-      cache_token(repo, token)
-    } 
+    token <- login(repo, verbose = verbose)
     
     headers <- c(
         headers[names(headers) != "Authorization"],
