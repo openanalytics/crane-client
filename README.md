@@ -9,11 +9,10 @@ but should work with any repository server acting as an OAuth2 resource server a
 
 ## Install
 
-From GitHub:
+From the OA public repository:
 
 ```R
-install.packages('remotes')
-remotes::install_github("openanalytics/crane-client", subdir = "crane")
+install.packages("crane", repos = c(OA = "https://repos.openanalytics.eu/repo/public/", CRAN = "https://cloud.r-project.org"))
 ```
 
 ## Registering a repository
