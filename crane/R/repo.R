@@ -34,10 +34,15 @@ check_access <- function(repo, token = NULL, force = FALSE) {
   
 }
 
-packagelist_request <- function(url, token = NULL) {
+packagelist_request <- function(
+  url,
+  token = NULL,
+  insecure = get_crane_opt("curl", "insecure", default = FALSE)
+  ) {
   h <- new_handle()
   
   h <- handle_setopt(h,
+      ssl_verifypeer = !insecure,
       url = sprintf("%s/src/contrib/PACKAGES", url)
   )
   

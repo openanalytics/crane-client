@@ -2,7 +2,7 @@ Package: crane
 Type: Package
 Title: Authenticate to OAuth 2.0 secured cranlike repositories.
 Version: 0.1.0
-Date: 2022-06-22
+Date: 2022-10-13
 Author: Daan Seynaeve
 Maintainer: Open Analytics <info@openanalytics.eu>
 Description: Authenticate to OAuth 2.0 secured cranlike repositories.
@@ -14,5 +14,5 @@ Imports:
     utils
 Suggests: 
     testthat
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 Roxygen: list(markdown = TRUE)

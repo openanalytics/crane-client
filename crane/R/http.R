@@ -1,3 +1,7 @@
+#' @name options
+#' @section Options:
+#' * `crane.curl.insecure`: do not verify peer identity
+{}
 
 #' @importFrom xml2 read_xml xml_text
 format_error_response <- function(response) {
@@ -42,8 +46,13 @@ perform <- function(request) {
 #' @param url request url
 #' @param data named character of request data
 #' \code{appplication/x-www-form-urlencoded}
+#' @param insecure skip peer verification
 #' @importFrom curl new_handle curl handle_setheaders handle_setopt curl_escape
-post_form_request <- function(url, data) {
+post_form_request <- function(
+  url,
+  data,
+  insecure = get_crane_opt("curl", "insecure", default = FALSE)
+  ) {
   
   h <- new_handle()
   
@@ -54,6 +63,7 @@ post_form_request <- function(url, data) {
   h <- handle_setopt(h,
       url = url,
       post = 1L,
+      ssl_verifypeer = !insecure,
       copypostfields = paste(collapse = "&",
           sprintf("%s=%s", curl_escape(names(data)), curl_escape(data))
       )
