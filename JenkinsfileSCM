@@ -1,0 +1,159 @@
+pipeline {
+    agent none
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '3'))
+    }
+    environment {
+        IMAGE = 'crane-client'
+        NS = 'shared'
+        REGISTRY = 'registry.openanalytics.eu'
+        TAG = env.BRANCH_NAME.toLowerCase().replaceAll(/[^a-z0-9._-]/, '.').trim()
+        REGION = 'eu-west-1'
+        NOT_CRAN = 'true'
+        _R_CHECK_TESTS_NLINES_ = 0
+    }
+    stages {
+        stage('Build Image') {
+            agent {
+                kubernetes {
+                    inheritFrom 'kaniko'
+                }
+            }
+            steps {
+                container('kaniko') {
+                    sh """/kaniko/executor \
+                    	-v info \
+                    	--log-timestamp=true \
+                    	--context ${env.WORKSPACE} \
+                    	--cache=true \
+                    	--cache-ttl=8760h0m0s \
+                    	--cache-repo ${env.REGISTRY}/${env.NS}/${env.IMAGE} \
+                    	--cleanup \
+                    	--destination ${env.REGISTRY}/${env.NS}/${env.IMAGE}:${env.TAG} \
+                    	--registry-mirror ${env.REGISTRY}"""
+                }
+            }
+            post {
+                always {
+                    sh "cp /kaniko/jenkins/mem*.log ${env.WORKSPACE}"
+                    archiveArtifacts artifacts: 'mem*.log', fingerprint: true
+                }
+            }
+        }
+        stage('Packages') {
+            agent {
+                kubernetes {
+                    yaml """
+                    apiVersion: v1
+                    kind: Pod
+                    spec:
+                      containers:
+                        - name: r
+                          image: ${env.REGISTRY}/${env.NS}/${env.IMAGE}:${env.TAG}
+                          resources:
+                            limits:
+                              cpu: 250m
+                              memory: 1Gi
+                            requests:
+                              cpu: 250m
+                              memory: 250Mi"""
+                    inheritFrom 'r'
+                    yamlMergeStrategy merge()
+                    defaultContainer 'r'
+                }
+            }
+            stages {
+                stage('crane') {
+                    stages {
+                        stage('Rcpp Compile Attributes') {
+                            steps {
+                                sh 'R -q -e \'if (requireNamespace("Rcpp", quietly = TRUE)) Rcpp::compileAttributes("crane")\''
+                            }
+                        }
+                        stage('Roxygen') {
+                            steps {
+                                sh 'R -q -e \'roxygen2::roxygenize("crane")\''
+                            }
+                        }
+                        stage('Build') {
+                            steps {
+                                sh 'R CMD build crane'
+                            }
+                        }
+                        stage('Install') {
+                            steps {
+                                sh 'R -q -e \'install.packages(list.files(".", "crane_.*.tar.gz"), repos = NULL)\''
+                            }
+                        }
+                        stage('Code integrity') {
+                            parallel {
+                                stage('Check') {
+                                    steps {
+                                        script() {
+                                            switch(sh(script: 'ls crane_*.tar.gz && R CMD check crane_*.tar.gz --no-manual', returnStatus: true)) {
+                                                case 0: currentBuild.result = 'SUCCESS'
+                                                default: currentBuild.result = 'FAILURE'; error('script exited with failure status')
+                                            }
+                                        }
+                                    }
+                                }
+                                stage('Test and coverage') {
+                                    steps {
+                                        dir('crane') {
+                                            sh '''R -q -e \'code <- "testthat::test_package(\\"crane\\", reporter = testthat::MultiReporter$new(list(testthat::SummaryReporter$new(file = file.path(getwd(), \\"test-results.txt\\")), testthat::JunitReporter$new(file = file.path(getwd(), \\"results.xml\\")))))"
+                                            packageCoverage <- covr::package_coverage(type = "none", code = code)
+                                            covr::to_cobertura(packageCoverage)\''''
+                                        }
+                                    }
+                                    post {
+                                        always {
+                                            dir('crane') {
+                                                junit 'results.xml'
+                                                recordCoverage tools: [[parser: 'COBERTURA']], id: 'crane', name: 'Coverage for crane', sourceCodeRetention: 'EVERY_BUILD'
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('Archive artifacts') {
+                    steps {
+                        archiveArtifacts artifacts: '*.tar.gz, *.pdf, **/test-results.txt', fingerprint: true
+                    }
+                }
+                stage('RDepot') {
+                    when {
+                        //packamon info: specify when you want your package to be submitted 
+                        //see https://www.jenkins.io/doc/book/pipeline/syntax/#built-in-conditions 
+                        anyOf {
+                            branch 'main'
+                            branch 'master'
+                        }
+                    }
+                    environment {
+                        RDEPOT_TOKEN = credentials('jenkins-rdepot-token')
+                        RDEPOT_HOST = 'https://rdepot.openanalytics.eu/server'
+                    }
+                    steps {
+                        sh 'rm -f pseudo.package.*tar.gz'
+                        container('rdepot-cli') {
+                            sh '''rdepot packages submit \
+                            	-f *.tar.gz \
+                            	--replace=false \
+                            	--repo=public'''
+                        }
+                    }
+                }
+            }
+            post {
+                always {
+                    sh "cp /mem_r.log ${env.WORKSPACE}"
+                    archiveArtifacts artifacts: '**/00check.log, mem*.log', fingerprint: true, allowEmptyArchive: true
+                }
+            }
+        }
+    }
+}
+
