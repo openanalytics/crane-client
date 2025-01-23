@@ -1,11 +1,10 @@
-
-# crane 
+# crane
 
 `crane` helps you install packages from CRAN-like private R repositories in a secure way.
 
 Authentication is accomplished via the [Device Authorization Grant](https://oauth.net/2/device-flow/) in OAuth 2.0.
 Crane has been designed to work well with the [crane repository server](https://github.com/openanalytics/crane) and [RDepot](https://rdepot.io)
-but should work with any repository server acting as an OAuth2 resource server and OAuth2 authorization server that supports OIDC and the device authorization grant. 
+but should work with any repository server acting as an OAuth2 resource server and OAuth2 authorization server that supports OIDC and the device authorization grant.
 
 ## Install
 
@@ -66,7 +65,6 @@ install.packages(c("privatePkg", "publicDependencyOfPrivatePkg"), repos = c("htt
 
 You can configure a variety of settings through R options and environment variables. See `?crane::options` for an overview of available options and more info.
 
-Learn more at https://craneserver.net
+Learn more at [https://craneserver.net]
 
 **(c) Copyright Open Analytics NV, 2021-2022 - Apache License 2.0**
-
