@@ -65,6 +65,6 @@ install.packages(c("privatePkg", "publicDependencyOfPrivatePkg"), repos = c("htt
 
 You can configure a variety of settings through R options and environment variables. See `?crane::options` for an overview of available options and more info.
 
-Learn more at [https://craneserver.net]
+Learn more at <https://craneserver.net>
 
 **(c) Copyright Open Analytics NV, 2021-2022 - Apache License 2.0**
